@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/menu_available"
+        android:title="예약 가능 조회"/>
+
+    <item
+        android:id="@+id/menu_status"
+        android:title="예약 현황"/>
+
+    <item
+        android:id="@+id/menu_setting"
+        android:title="설정"/>
+
+</menu>
