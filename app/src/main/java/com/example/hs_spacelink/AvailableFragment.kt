@@ -1,10 +1,12 @@
 package com.example.hs_spacelink
 
 import android.app.TimePickerDialog
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,24 +28,29 @@ class AvailableFragment : Fragment() {
         "그룹스터디실(6F)", "그룹스터디실(5F)", "그룹스터디실(4F)", "그룹스터디실(3F-2)", "그룹스터디실(3F-1)",
         "회의실(5F상상커먼스)", "세미나룸(5F상상커먼스)"
     )
-
     private val sangsangRooms = listOf(
         "소모임실 Challenge", "소모임실 Collaboration", "소모임실 Communication",
         "소모임실 Convergence", "소모임실 Creativity", "소모임실 Critical Thinking"
     )
-
     private val codingRooms = listOf(
         "세미나실 101호", "세미나실 102호", "세미나실 103호", "세미나실 104호", "세미나실 105호",
-        "세미나실 106호", "세미나실 107호", "세미나실 108호", "세미나실 109호", "세미나실 110호",
-        "세미나실 111호", "세미나실 112호", "세미나실 113호"
+        "세미나실 106호", "세미나실 110호", "세미나실 111호", "세미나실 112호", "세미나실 113호"
     )
+
+    private lateinit var textResultCount: TextView
+    private lateinit var resultContainer: LinearLayout
+
+    private var currentSelectedDate = ""
+    private var currentStartTime = ""
+    private var currentEndTime = ""
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         val view = inflater.inflate(R.layout.fragment_available, container, false)
 
-        val resultContainer = view.findViewById<LinearLayout>(R.id.resultContainer)
+        resultContainer = view.findViewById(R.id.resultContainer)
+        textResultCount = view.findViewById(R.id.textResultCount)
         val searchButton = view.findViewById<Button>(R.id.btnSearch)
         val editDate = view.findViewById<EditText>(R.id.editDate)
         val editStartTime = view.findViewById<EditText>(R.id.editStartTime)
@@ -52,10 +59,10 @@ class AvailableFragment : Fragment() {
         val checkCoding = view.findViewById<CheckBox>(R.id.checkCoding)
         val checkSangsang = view.findViewById<CheckBox>(R.id.checkSangsang)
 
-        // 조회하기 버튼 딥 네이비 깔춤
         searchButton.setBackgroundColor(android.graphics.Color.parseColor("#0F1E36"))
         searchButton.setTextColor(android.graphics.Color.WHITE)
 
+        showInitialGuide()
         setupPickers(editDate, editStartTime, editEndTime)
 
         searchButton.setOnClickListener {
@@ -67,26 +74,26 @@ class AvailableFragment : Fragment() {
                 Toast.makeText(requireContext(), "시설을 하나 이상 선택해주세요.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-
             if (selectedDate.isBlank() || startTime.isBlank() || endTime.isBlank()) {
-                Toast.makeText(requireContext(), "날짜와 시간을 입력해주세요.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "날짜와 시간을 지정해 주세요.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
+
+            currentSelectedDate = selectedDate
+            currentStartTime = startTime
+            currentEndTime = endTime
+
+            textResultCount.text = "🔍 크롤링 엔진 가동 중..."
+            textResultCount.setTextColor(android.graphics.Color.parseColor("#1E3A8A"))
 
             Thread {
                 try {
                     val selectedDay = selectedDate.substringAfterLast("-").toInt().toString()
                     val reservedRooms = mutableSetOf<String>()
 
-                    if (checkLibrary.isChecked) {
-                        parseUrlData("https://www.hansung.ac.kr/hsel/2153/subview.do", selectedDay, startTime, endTime, reservedRooms)
-                    }
-                    if (checkSangsang.isChecked) {
-                        parseUrlData("https://www.hansung.ac.kr/cncschool/4181/subview.do", selectedDay, startTime, endTime, reservedRooms)
-                    }
-                    if (checkCoding.isChecked) {
-                        parseUrlData("https://www.hansung.ac.kr/cncschool/4182/subview.do", selectedDay, startTime, endTime, reservedRooms)
-                    }
+                    if (checkLibrary.isChecked) parseUrlData("https://www.hansung.ac.kr/hsel/2153/subview.do", selectedDay, startTime, endTime, reservedRooms)
+                    if (checkSangsang.isChecked) parseUrlData("https://www.hansung.ac.kr/cncschool/4181/subview.do", selectedDay, startTime, endTime, reservedRooms)
+                    if (checkCoding.isChecked) parseUrlData("https://www.hansung.ac.kr/cncschool/4182/subview.do", selectedDay, startTime, endTime, reservedRooms)
 
                     requireActivity().runOnUiThread {
                         resultContainer.removeAllViews()
@@ -96,34 +103,25 @@ class AvailableFragment : Fragment() {
                         if (checkCoding.isChecked) totalSelected.addAll(codingRooms)
                         if (checkSangsang.isChecked) totalSelected.addAll(sangsangRooms)
 
+                        var availableCount = 0
                         totalSelected.forEach { room ->
                             val normalized = room.replace("-", "").replace(" ", "").lowercase()
 
                             if (!reservedRooms.contains(normalized)) {
+                                availableCount++
                                 val category = when {
                                     libraryRooms.contains(room) -> "학술정보관"
                                     codingRooms.contains(room) -> "코딩라운지"
                                     else -> "상상파크 플러스"
                                 }
-
-                                val bookingUrl = when (category) {
-                                    "학술정보관" -> "https://www.hansung.ac.kr/resve/hsel/14/artclRegistView.do"
-                                    "코딩라운지" -> "https://www.hansung.ac.kr/resve/cncschool/18/artclRegistView.do"
-                                    else -> "https://www.hansung.ac.kr/resve/cncschool/17/artclRegistView.do"
-                                }
-
-                                addResultCard(resultContainer, category, room, "$startTime ~ $endTime [예약 가능]", bookingUrl)
+                                addResultCard(resultContainer, category, room, "$startTime ~ $endTime [예약 가능]")
                             }
                         }
 
-                        if (resultContainer.childCount == 0) {
-                            val emptyText = TextView(requireContext()).apply {
-                                text = "선택하신 시간에 빈 공간이 없습니다."
-                                textSize = 16f
-                                setPadding(40, 40, 40, 40)
-                            }
-                            resultContainer.addView(emptyText)
-                        }
+                        textResultCount.text = "조회 결과 ${availableCount}개"
+                        textResultCount.setTextColor(android.graphics.Color.parseColor("#0F1E36"))
+
+                        if (availableCount == 0) showNoResultView()
                     }
                 } catch (e: Exception) {
                     Log.e("HTML_ERROR", e.toString())
@@ -131,6 +129,30 @@ class AvailableFragment : Fragment() {
             }.start()
         }
         return view
+    }
+
+    private fun showInitialGuide() {
+        resultContainer.removeAllViews()
+        textResultCount.text = "조회 결과"
+        val guideText = TextView(requireContext()).apply {
+            text = "💡\n\n원하시는 시설과 일정을 위 창에 입력하신 뒤\n[조회하기] 버튼을 누르면 실시간 맵핑이 시작됩니다!"
+            textSize = 15f
+            gravity = Gravity.CENTER
+            setTextColor(android.graphics.Color.parseColor("#64748B"))
+            setPadding(40, 150, 40, 40)
+        }
+        resultContainer.addView(guideText)
+    }
+
+    private fun showNoResultView() {
+        val emptyText = TextView(requireContext()).apply {
+            text = "😥\n\n선택하신 시간대에는 이미 모든 예약이 선점되어\n남아있는 빈 공간이 없습니다. 다른 시간을 설정해보세요!"
+            textSize = 15f
+            gravity = Gravity.CENTER
+            setTextColor(android.graphics.Color.parseColor("#94A3B8"))
+            setPadding(40, 150, 40, 40)
+        }
+        resultContainer.addView(emptyText)
     }
 
     private fun parseUrlData(url: String, selectedDay: String, startTime: String, endTime: String, reservedRooms: MutableSet<String>) {
@@ -162,8 +184,7 @@ class AvailableFragment : Fragment() {
 
     private fun showScrollTimePicker(target: EditText, defaultHour: Int) {
         val timePickerDialog = TimePickerDialog(
-            requireContext(),
-            android.R.style.Theme_Holo_Light_Dialog_NoActionBar,
+            requireContext(), 3,
             { _, hourOfDay, minute -> target.setText(String.format("%02d:%02d", hourOfDay, minute)) },
             defaultHour, 0, true
         )
@@ -177,10 +198,10 @@ class AvailableFragment : Fragment() {
         return !(tM(uE) <= rS || tM(uS) >= rE)
     }
 
-    private fun addResultCard(container: LinearLayout, category: String, room: String, status: String, url: String) {
+    private fun addResultCard(container: LinearLayout, category: String, room: String, status: String) {
         val card = com.google.android.material.card.MaterialCardView(requireContext()).apply {
-            layoutParams = LinearLayout.LayoutParams(-1, -2).apply { setMargins(0, 0, 0, 32) }
-            radius = 24f
+            layoutParams = LinearLayout.LayoutParams(-1, -2).apply { setMargins(0, 0, 0, 24) }
+            radius = 20f
             cardElevation = 2f
             strokeWidth = 2
             strokeColor = android.graphics.Color.parseColor("#E2E8F0")
@@ -189,7 +210,7 @@ class AvailableFragment : Fragment() {
 
         val inner = LinearLayout(requireContext()).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(48, 48, 48, 48)
+            setPadding(40, 40, 40, 40)
         }
 
         val placeText = TextView(requireContext()).apply {
@@ -200,25 +221,25 @@ class AvailableFragment : Fragment() {
 
         val roomText = TextView(requireContext()).apply {
             text = room
-            textSize = 18f
+            textSize = 17f
             setTypeface(null, android.graphics.Typeface.BOLD)
             setTextColor(android.graphics.Color.parseColor("#0F1E36"))
-            setPadding(0, 8, 0, 12)
+            setPadding(0, 6, 0, 10)
         }
 
         val badgeLayout = LinearLayout(requireContext()).apply {
             orientation = LinearLayout.HORIZONTAL
-            setPadding(24, 12, 24, 12)
-            layoutParams = LinearLayout.LayoutParams(-2, -2).apply { setMargins(0, 0, 0, 32) }
+            setPadding(20, 10, 20, 10)
+            layoutParams = LinearLayout.LayoutParams(-2, -2).apply { setMargins(0, 0, 0, 24) }
             background = android.graphics.drawable.GradientDrawable().apply {
-                setColor(android.graphics.Color.parseColor("#E0F2FE")) // 시안 감성 스카이블루 배지
-                cornerRadius = 12f
+                setColor(android.graphics.Color.parseColor("#E0F2FE"))
+                cornerRadius = 10f
             }
         }
 
         val statusText = TextView(requireContext()).apply {
             text = "🔓 $status"
-            textSize = 13f
+            textSize = 12f
             setTypeface(null, android.graphics.Typeface.BOLD)
             setTextColor(android.graphics.Color.parseColor("#0369A1"))
         }
@@ -226,15 +247,56 @@ class AvailableFragment : Fragment() {
 
         val reserveButton = com.google.android.material.button.MaterialButton(requireContext()).apply {
             text = "지금 바로 예약"
-            textSize = 14f
+            textSize = 13f
             setTypeface(null, android.graphics.Typeface.BOLD)
-            setBackgroundColor(android.graphics.Color.parseColor("#1E3A8A")) // 다크블루 라운드 버튼
+            setBackgroundColor(android.graphics.Color.parseColor("#1E3A8A"))
             setTextColor(android.graphics.Color.WHITE)
-            cornerRadius = 16
+            cornerRadius = 12
 
             setOnClickListener {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                startActivity(intent)
+                val officialUrl = when (category) {
+                    "학술정보관" -> "https://www.hansung.ac.kr/hsel/2153/subview.do"
+                    "코딩라운지" -> "https://www.hansung.ac.kr/cncschool/4182/subview.do"
+                    else -> "https://www.hansung.ac.kr/cncschool/4181/subview.do"
+                }
+
+                try {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(officialUrl))
+                    context.startActivity(intent)
+                } catch (e: Exception) {
+                    Toast.makeText(context, "브라우저를 열 수 없습니다.", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        val calendarButton = com.google.android.material.button.MaterialButton(requireContext()).apply {
+            text = "📅 내 캘린더에 일정 추가"
+            textSize = 13f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setBackgroundColor(android.graphics.Color.parseColor("#475569"))
+            setTextColor(android.graphics.Color.WHITE)
+            cornerRadius = 12
+            layoutParams = LinearLayout.LayoutParams(-1, -2).apply { setMargins(0, 12, 0, 0) }
+
+            setOnClickListener {
+                val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.KOREAN)
+                try {
+                    val startMillis: Long = sdf.parse("$currentSelectedDate $currentStartTime")?.time ?: System.currentTimeMillis()
+                    val endMillis: Long = sdf.parse("$currentSelectedDate $currentEndTime")?.time ?: (startMillis + 2 * 60 * 60 * 1000)
+
+                    // ★ [안전성 100% 리팩토링] ACTION_EDIT 및 TYPE 지정을 통해 구글 서버 동기화 락 우회 ★
+                    val intent = Intent(Intent.ACTION_EDIT).apply {
+                        type = "vnd.android.cursor.item/event"
+                        putExtra(android.provider.CalendarContract.Events.TITLE, "[스터디룸] $room")
+                        putExtra(android.provider.CalendarContract.Events.EVENT_LOCATION, "한성대학교 $category")
+                        putExtra(android.provider.CalendarContract.Events.DESCRIPTION, "HS SpaceLink를 통해 매칭에 성공한 예약 스케줄입니다.")
+                        putExtra(android.provider.CalendarContract.EXTRA_EVENT_BEGIN_TIME, startMillis)
+                        putExtra(android.provider.CalendarContract.EXTRA_EVENT_END_TIME, endMillis)
+                    }
+                    context.startActivity(intent)
+                } catch (e: Exception) {
+                    Toast.makeText(context, "캘린더 앱을 호출할 수 없습니다.", Toast.LENGTH_SHORT).show()
+                }
             }
         }
 
@@ -242,6 +304,7 @@ class AvailableFragment : Fragment() {
         inner.addView(roomText)
         inner.addView(badgeLayout)
         inner.addView(reserveButton)
+        inner.addView(calendarButton)
         card.addView(inner)
         container.addView(card)
     }

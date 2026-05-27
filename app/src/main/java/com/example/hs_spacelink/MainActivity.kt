@@ -1,75 +1,104 @@
 package com.example.hs_spacelink
 
-import android.app.Activity
-import android.os.Build
 import android.os.Bundle
-import android.view.View
+import android.view.MenuItem
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
-import androidx.fragment.app.Fragment
-import com.example.hs_spacelink.databinding.ActivityMainBinding
+import androidx.drawerlayout.widget.DrawerLayout
+import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.navigation.NavigationView
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMainBinding
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var toggle: ActionBarDrawerToggle
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
 
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        // [팩트 세팅] 현우님의 activity_main.xml 고유 ID 명세와 완벽 동기화
+        drawerLayout = findViewById(R.id.drawerLayout)
+        val toolbar = findViewById<MaterialToolbar>(R.id.topAppBar)
+        val navigationView = findViewById<NavigationView>(R.id.navigationView)
 
-        // 최상단 배터리/시계 상태바까지 딥 네이비로 강제 도색 (프로급 퀄리티 마감)
-        window.statusBarColor = android.graphics.Color.parseColor("#0F1E36")
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            // 네이비 배경이므로 상단 아이콘들을 흰색조로 유지
-            window.decorView.systemUiVisibility = window.decorView.systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
-        }
+        // 액션바 역할을 대신 수행할 커스텀 툴바 바인딩
+        setSupportActionBar(toolbar)
 
-        replaceFragment(AvailableFragment())
-
-        // 툴바 설정 및 제안서 시안 색상 매칭
-        setSupportActionBar(binding.topAppBar)
-        binding.topAppBar.setBackgroundColor(android.graphics.Color.parseColor("#0F1E36")) // 딥 네이비
-        binding.topAppBar.setTitleTextColor(android.graphics.Color.WHITE) // 화이트 타이틀
-
-        // 내비게이션 드로어 삼선 아이콘 화이트 고정 규칙 연동
-        val toggle = ActionBarDrawerToggle(
-            this,
-            binding.drawerLayout,
-            binding.topAppBar,
-            R.string.open_drawer,
-            R.string.close_drawer
+        // 1. 최신 안드로이드 컴파일러 호환 패키지 기반 토글 엔진 가동
+        toggle = ActionBarDrawerToggle(
+            this, drawerLayout, toolbar,
+            R.string.navigation_drawer_open,
+            R.string.navigation_drawer_close
         )
-        toggle.drawerArrowDrawable.color = android.graphics.Color.WHITE
-        binding.drawerLayout.addDrawerListener(toggle)
+        drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
-        // 메뉴 클릭 이벤트
-        binding.navigationView.setNavigationItemSelectedListener {
-            when (it.itemId) {
-                R.id.menu_available -> {
-                    supportActionBar?.title = "예약 가능 조회"
-                    replaceFragment(AvailableFragment())
-                }
-                R.id.menu_status -> {
-                    supportActionBar?.title = "예약 현황"
-                    replaceFragment(StatusFragment())
-                }
-                R.id.menu_setting -> {
-                    supportActionBar?.title = "설정"
-                    replaceFragment(SettingFragment())
+        // 2. 최신 안드로이드 생명주기(API 33+) 대응 완벽 뒤로가기 콜백 (onBackPressed 빨간 줄 무조건 클리어)
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                } else {
+                    // 왼쪽 드로어 탭이 닫혀있다면 정상적으로 운영체제 시스템 백그라운드로 이탈
+                    isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
                 }
             }
-            binding.drawerLayout.closeDrawer(GravityCompat.START)
+        })
+
+        // 앱 처음 진입 시 프래그먼트 공간(fragmentContainer)에 AvailableFragment 우선 매핑
+        if (savedInstanceState == null) {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, AvailableFragment())
+                .commit()
+            supportActionBar?.title = "예약 가능 조회"
+        }
+
+        // 왼쪽 드로어 탭 메뉴 아이템 클릭 리스너 체계 바인딩
+        navigationView.setNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_search -> {
+                    supportFragmentManager.beginTransaction()
+                        .replace(R.id.fragmentContainer, AvailableFragment())
+                        .commit()
+                    supportActionBar?.title = "예약 가능 조회"
+                }
+                R.id.nav_rules -> {
+                    // 새롭게 정립한 스터디룸 규정 안내 화면 로드
+                    supportFragmentManager.beginTransaction()
+                        .replace(R.id.fragmentContainer, RuleFragment())
+                        .commit()
+                    supportActionBar?.title = "시설 이용 수칙"
+                }
+                R.id.nav_status -> {
+                    // 기존 StatusFragment 연동 파트 바인딩 완료
+                    supportFragmentManager.beginTransaction()
+                        .replace(R.id.fragmentContainer, StatusFragment())
+                        .commit()
+                    supportActionBar?.title = "예약 현황"
+                }
+                R.id.nav_settings -> {
+                    // 기존 SettingFragment 연동 파트 바인딩 완료
+                    supportFragmentManager.beginTransaction()
+                        .replace(R.id.fragmentContainer, SettingFragment())
+                        .commit()
+                    supportActionBar?.title = "설정"
+                }
+            }
+
+            // 아이템 클릭 타겟팅이 끝나면 드로어 탭 자동 폴딩
+            drawerLayout.closeDrawer(GravityCompat.START)
             true
         }
     }
 
-    private fun replaceFragment(fragment: Fragment) {
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainer, fragment)
-            .commit()
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (toggle.onOptionsItemSelected(item)) {
+            return true
+        }
+        return super.onOptionsItemSelected(item)
     }
 }

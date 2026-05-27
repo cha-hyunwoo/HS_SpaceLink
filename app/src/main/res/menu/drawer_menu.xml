@@ -1,16 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
 
-    <item
-        android:id="@+id/menu_available"
-        android:title="예약 가능 조회"/>
-
-    <item
-        android:id="@+id/menu_status"
-        android:title="예약 현황"/>
-
-    <item
-        android:id="@+id/menu_setting"
-        android:title="설정"/>
-
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_search"
+            android:icon="@android:drawable/ic_menu_search"
+            android:title="예약 가능 조회" />
+        <item
+            android:id="@+id/nav_status"
+            android:icon="@android:drawable/ic_menu_my_calendar"
+            android:title="예약 현황" />
+        <item
+            android:id="@+id/nav_rules"
+            android:icon="@android:drawable/ic_menu_info_details"
+            android:title="시설 이용 수칙" />
+        <item
+            android:id="@+id/nav_settings"
+            android:icon="@android:drawable/ic_menu_manage"
+            android:title="설정" />
+    </group>
 </menu>

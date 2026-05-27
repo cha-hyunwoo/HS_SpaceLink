@@ -1,9 +1,25 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/schemas/tools">
+
     <style name="Base.Theme.HS_SpaceLink" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+
+        <item name="colorPrimary">#0F1E36</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+
+        <item name="colorPrimaryVariant" tools:targetApi="l">#0A1424</item>
+
+        <item name="colorSecondary">#1E3A8A</item>
+        <item name="colorOnSecondary">#FFFFFF</item>
+
+        <item name="android:windowBackground">#F8FAFC</item>
+
+        <item name="android:windowLightStatusBar">false</item>
+
+        <item name="titleTextColor">#FFFFFF</item>
+        <item name="iconTint">#FFFFFF</item>
+
     </style>
 
     <style name="Theme.HS_SpaceLink" parent="Base.Theme.HS_SpaceLink" />
+
 </resources>

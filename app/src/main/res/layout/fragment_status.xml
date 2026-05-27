@@ -4,14 +4,20 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#F8FAFC"
     android:orientation="vertical">
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayoutStatus"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="54dp"
         app:tabMode="fixed"
-        app:tabGravity="fill">
+        app:tabGravity="fill"
+        app:tabInlineLabel="true"
+        app:tabBackground="@color/white"
+        app:tabIndicatorAnimationMode="elastic"
+        app:tabSelectedTextColor="#0F1E36"
+        app:tabTextColor="#94A3B8">
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
@@ -26,13 +32,25 @@
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="상상파크 플러스"/>
+            android:text="상상파크+"/>
     </com.google.android.material.tabs.TabLayout>
 
-    <CalendarView
-        android:id="@+id/calendarViewStatus"
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="0dp"
+        app:strokeWidth="1dp"
+        app:strokeColor="#E2E8F0"
+        app:cardBackgroundColor="#FFFFFF">
+
+        <CalendarView
+            android:id="@+id/calendarViewStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp"/>
+    </com.google.android.material.card.MaterialCardView>
 
     <TextView
         android:id="@+id/textStatusTitle"
@@ -40,10 +58,11 @@
         android:layout_height="wrap_content"
         android:text="선택된 날짜 예약 내역"
         android:textStyle="bold"
-        android:textSize="18sp"
-        android:paddingLeft="16dp"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"/>
+        android:textSize="15sp"
+        android:textColor="#0F1E36"
+        android:paddingHorizontal="20dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="12dp"/>
 
     <ScrollView
         android:layout_width="match_parent"
@@ -54,7 +73,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:paddingHorizontal="20dp"
+            android:paddingBottom="20dp">
         </LinearLayout>
     </ScrollView>
 

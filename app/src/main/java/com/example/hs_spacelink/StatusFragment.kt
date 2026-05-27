@@ -1,9 +1,8 @@
 package com.example.hs_spacelink
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -36,7 +35,6 @@ class StatusFragment : Fragment() {
         resultContainer = view.findViewById(R.id.statusResultContainer)
         textTitle = view.findViewById(R.id.textStatusTitle)
 
-        // 탭바 스타일 시안과 100% 매칭
         tabLayout.setBackgroundColor(android.graphics.Color.parseColor("#0F1E36"))
         tabLayout.setTabTextColors(android.graphics.Color.parseColor("#94A3B8"), android.graphics.Color.parseColor("#FFFFFF"))
         tabLayout.setSelectedTabIndicatorColor(android.graphics.Color.parseColor("#1E3A8A"))
@@ -75,7 +73,7 @@ class StatusFragment : Fragment() {
             1 -> "코딩라운지"
             else -> "상상파크 플러스"
         }
-        textTitle.text = "$selectedDateString [$facilityName] 실시간 현황판"
+        textTitle.text = "📊 $selectedDateString [$facilityName] 실시간 현황"
         textTitle.setTextColor(android.graphics.Color.parseColor("#0F1E36"))
     }
 
@@ -105,11 +103,11 @@ class StatusFragment : Fragment() {
 
                     if (statusList.isEmpty()) {
                         val emptyText = TextView(requireContext()).apply {
-                            text = "🎉 해당 날짜는 모든 공간이 비어있습니다!"
-                            textSize = 16f
-                            setTextColor(android.graphics.Color.parseColor("#1E3A8A"))
-                            setPadding(40, 60, 40, 60)
-                            gravity = android.view.Gravity.CENTER
+                            text = "✨\n\n해당 날짜는 비어있는 클린 데이입니다!\n원하는 시간을 선점하기 아주 좋은 타이밍이네요."
+                            textSize = 15f
+                            setTextColor(android.graphics.Color.parseColor("#475569"))
+                            setPadding(40, 100, 40, 40)
+                            gravity = Gravity.CENTER
                         }
                         resultContainer.addView(emptyText)
                     } else {
@@ -126,8 +124,8 @@ class StatusFragment : Fragment() {
 
     private fun addStatusCard(container: LinearLayout, roomName: String, timeRange: String) {
         val card = com.google.android.material.card.MaterialCardView(requireContext()).apply {
-            layoutParams = LinearLayout.LayoutParams(-1, -2).apply { setMargins(0, 0, 0, 32) }
-            radius = 24f
+            layoutParams = LinearLayout.LayoutParams(-1, -2).apply { setMargins(0, 0, 0, 24) }
+            radius = 20f
             cardElevation = 2f
             strokeWidth = 2
             strokeColor = android.graphics.Color.parseColor("#E2E8F0")
@@ -136,7 +134,7 @@ class StatusFragment : Fragment() {
 
         val inner = LinearLayout(requireContext()).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(48, 40, 48, 40)
+            setPadding(40, 40, 40, 40)
         }
 
         val nameText = TextView(requireContext()).apply {
@@ -148,17 +146,17 @@ class StatusFragment : Fragment() {
 
         val badgeLayout = LinearLayout(requireContext()).apply {
             orientation = LinearLayout.HORIZONTAL
-            setPadding(24, 12, 24, 12)
-            layoutParams = LinearLayout.LayoutParams(-2, -2).apply { setMargins(0, 16, 0, 0) }
+            setPadding(20, 10, 20, 10)
+            layoutParams = LinearLayout.LayoutParams(-2, -2).apply { setMargins(0, 14, 0, 0) }
             background = android.graphics.drawable.GradientDrawable().apply {
-                setColor(android.graphics.Color.parseColor("#EEF2F6")) // 예약 완료 그레이블루 뱃지
-                cornerRadius = 12f
+                setColor(android.graphics.Color.parseColor("#EEF2F6"))
+                cornerRadius = 10f
             }
         }
 
         val statusText = TextView(requireContext()).apply {
-            text = "🔒 예약 완료  |  $timeRange"
-            textSize = 13f
+            text = "🔒 예약 선점  |  $timeRange"
+            textSize = 12f
             setTypeface(null, android.graphics.Typeface.BOLD)
             setTextColor(android.graphics.Color.parseColor("#1E3A8A"))
         }
