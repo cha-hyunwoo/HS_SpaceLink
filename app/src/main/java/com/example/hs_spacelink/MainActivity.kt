@@ -80,6 +80,13 @@ class MainActivity : AppCompatActivity() {
                         .commit()
                     supportActionBar?.title = "예약 현황"
                 }
+                // ★ [연동 규격 동기화] 드로어 메뉴에서 지도 아이템 선택 시 동적 SVG 맵 프래그먼트로 전환 ★
+                R.id.nav_map -> {
+                    supportFragmentManager.beginTransaction()
+                        .replace(R.id.fragmentContainer, MapFragment.newInstance())
+                        .commit()
+                    supportActionBar?.title = "캠퍼스 지도"
+                }
                 R.id.nav_settings -> {
                     // 기존 SettingFragment 연동 파트 바인딩 완료
                     supportFragmentManager.beginTransaction()

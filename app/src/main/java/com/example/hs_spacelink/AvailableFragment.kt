@@ -16,6 +16,7 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.datepicker.MaterialDatePicker
 import org.jsoup.Jsoup
@@ -135,7 +136,7 @@ class AvailableFragment : Fragment() {
         resultContainer.removeAllViews()
         textResultCount.text = "조회 결과"
         val guideText = TextView(requireContext()).apply {
-            text = "💡\n\n원하시는 시설과 일정을 위 창에 입력하신 뒤\n[조회하기] 버튼을 누르면 실시간 맵핑이 시작됩니다!"
+            text = "💡\n\n원하시는 시설 and 일정을 위 창에 입력하신 뒤\n[조회하기] 버튼을 누르면 실시간 맵핑이 시작됩니다!"
             textSize = 15f
             gravity = Gravity.CENTER
             setTextColor(android.graphics.Color.parseColor("#64748B"))
@@ -269,6 +270,32 @@ class AvailableFragment : Fragment() {
             }
         }
 
+        // ★ [정밀 바인딩] 예약 결과에서 곧바로 SVG 웹뷰 지도로 점프 연동시키는 위치 보기 버튼 주입 ★
+        val mapButton = com.google.android.material.button.MaterialButton(requireContext()).apply {
+            text = "🗺 위치 보기"
+            textSize = 13f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setBackgroundColor(android.graphics.Color.parseColor("#0F6E56"))
+            setTextColor(android.graphics.Color.WHITE)
+            cornerRadius = 12
+            layoutParams = LinearLayout.LayoutParams(-1, -2).apply { setMargins(0, 12, 0, 0) }
+
+            setOnClickListener {
+                val key = when (category) {
+                    "학술정보관" -> "sangsangwan"
+                    "코딩라운지" -> "coding"
+                    else -> "sangsangwan" // 상상파크 플러스 대응
+                }
+                requireActivity().supportFragmentManager.beginTransaction()
+                    .replace(R.id.fragmentContainer, MapFragment.newInstance(key))
+                    .addToBackStack(null)
+                    .commit()
+
+                // 액티비티 액션바 헤더 타이틀도 동기화 처리
+                (requireActivity() as? AppCompatActivity)?.supportActionBar?.title = "캠퍼스 지도"
+            }
+        }
+
         val calendarButton = com.google.android.material.button.MaterialButton(requireContext()).apply {
             text = "📅 내 캘린더에 일정 추가"
             textSize = 13f
@@ -284,7 +311,6 @@ class AvailableFragment : Fragment() {
                     val startMillis: Long = sdf.parse("$currentSelectedDate $currentStartTime")?.time ?: System.currentTimeMillis()
                     val endMillis: Long = sdf.parse("$currentSelectedDate $currentEndTime")?.time ?: (startMillis + 2 * 60 * 60 * 1000)
 
-                    // ★ [안전성 100% 리팩토링] ACTION_EDIT 및 TYPE 지정을 통해 구글 서버 동기화 락 우회 ★
                     val intent = Intent(Intent.ACTION_EDIT).apply {
                         type = "vnd.android.cursor.item/event"
                         putExtra(android.provider.CalendarContract.Events.TITLE, "[스터디룸] $room")
@@ -304,6 +330,7 @@ class AvailableFragment : Fragment() {
         inner.addView(roomText)
         inner.addView(badgeLayout)
         inner.addView(reserveButton)
+        inner.addView(mapButton) // 위치 버튼을 예약 버튼 바로 아래 순서로 배치
         inner.addView(calendarButton)
         card.addView(inner)
         container.addView(card)
