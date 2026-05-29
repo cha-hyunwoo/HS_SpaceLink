@@ -1,15 +1,25 @@
 package com.example.hs_spacelink
 
+import android.content.Intent
+import android.graphics.Color
+import android.graphics.Typeface
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.CalendarView
+import android.widget.CheckBox
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.core.graphics.toColorInt
 import androidx.fragment.app.Fragment
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
 import org.jsoup.Jsoup
 import java.text.SimpleDateFormat
@@ -21,12 +31,17 @@ class StatusFragment : Fragment() {
     private lateinit var calendarView: CalendarView
     private lateinit var resultContainer: LinearLayout
     private lateinit var textTitle: TextView
+    private lateinit var btnNotificationList: Button
 
     private var selectedDateString = ""
     private var currentUrl = "https://www.hansung.ac.kr/hsel/2153/subview.do"
 
     private val debounceHandler = android.os.Handler(android.os.Looper.getMainLooper())
     private var debounceRunnable: Runnable? = null
+
+    companion object {
+        val trackingNotificationList = ArrayList<String>()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -38,14 +53,29 @@ class StatusFragment : Fragment() {
         resultContainer = view.findViewById(R.id.statusResultContainer)
         textTitle = view.findViewById(R.id.textStatusTitle)
 
-        tabLayout.setBackgroundColor(android.graphics.Color.parseColor("#FFFFFF"))
-        tabLayout.setTabTextColors(
-            android.graphics.Color.parseColor("#94A3B8"),
-            android.graphics.Color.parseColor("#0F1E36")
-        )
-        tabLayout.setSelectedTabIndicatorColor(android.graphics.Color.parseColor("#0F1E36"))
+        btnNotificationList = Button(requireContext()).apply {
+            text = "🔔 내 알림 신청 목록 (${trackingNotificationList.size})"
+            textSize = 13f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(Color.WHITE)
+            setBackgroundColor("#0F1E36".toColorInt())
+            val params = LinearLayout.LayoutParams(-1, -2).apply { setMargins(40, 24, 40, 24) }
+            layoutParams = params
 
-        // calendarView.date 믿지 않고 직접 오늘 날짜로 초기화
+            setOnClickListener {
+                showTrackingListDialog()
+            }
+        }
+
+        (view as? ViewGroup)?.addView(btnNotificationList, 1)
+
+        tabLayout.setBackgroundColor(Color.parseColor("#FFFFFF"))
+        tabLayout.setTabTextColors(
+            Color.parseColor("#94A3B8"),
+            Color.parseColor("#0F1E36")
+        )
+        tabLayout.setSelectedTabIndicatorColor(Color.parseColor("#0F1E36"))
+
         val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.KOREAN)
         selectedDateString = sdf.format(Date())
         updateTitleText()
@@ -64,9 +94,8 @@ class StatusFragment : Fragment() {
             override fun onTabReselected(tab: TabLayout.Tab?) {}
         })
 
-        // 유저가 실제로 탭한 날짜만 신뢰
         calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
-            selectedDateString = String.format("%04d-%02d-%02d", year, month + 1, dayOfMonth)
+            selectedDateString = String.format(Locale.KOREAN, "%04d-%02d-%02d", year, month + 1, dayOfMonth)
             updateTitleText()
             triggerDebouncedSearch()
         }
@@ -87,8 +116,125 @@ class StatusFragment : Fragment() {
             1 -> "코딩라운지"
             else -> "상상파크 플러스"
         }
-        textTitle.text = "📊 $selectedDateString [$facilityName] 실시간 현황"
-        textTitle.setTextColor(android.graphics.Color.parseColor("#0F1E36"))
+        textTitle.text = String.format(Locale.KOREAN, "📊 %s [%s] 실시간 현황", selectedDateString, facilityName)
+        textTitle.setTextColor(Color.parseColor("#0F1E36"))
+
+        if (::btnNotificationList.isInitialized) {
+            btnNotificationList.text = "🔔 내 알림 신청 목록 (${trackingNotificationList.size})"
+        }
+    }
+
+    // ★ [말 통일 완수] 팝업 내부의 모든 단어를 '신청'과 '해제'로 정밀 통일했습니다.
+    private fun showTrackingListDialog() {
+        val dialogView = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(48, 32, 48, 16)
+            setBackgroundColor(Color.parseColor("#F8FAFC"))
+        }
+
+        val scrollView = ScrollView(requireContext()).apply {
+            layoutParams = LinearLayout.LayoutParams(-1, 0, 1f)
+        }
+
+        val listContainer = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.VERTICAL
+        }
+
+        val checkBoxMap = HashMap<Int, CheckBox>()
+
+        if (trackingNotificationList.isEmpty()) {
+            val emptyText = TextView(requireContext()).apply {
+                text = "현재 모니터링 중인 알림이 없습니다.\n\n하단 실시간 현황 카드에서\n취소 알림 신청을 진행해 보세요! 🔍"
+                textSize = 14f
+                gravity = Gravity.CENTER
+                setTextColor(Color.parseColor("#94A3B8"))
+                setPadding(0, 80, 0, 80)
+            }
+            listContainer.addView(emptyText)
+        } else {
+            trackingNotificationList.forEachIndexed { index, item ->
+                val card = com.google.android.material.card.MaterialCardView(requireContext()).apply {
+                    layoutParams = LinearLayout.LayoutParams(-1, -2).apply { setMargins(0, 0, 0, 16) }
+                    radius = 24f
+                    cardElevation = 0f
+                    strokeWidth = 2
+                    strokeColor = Color.parseColor("#E2E8F0")
+                    setCardBackgroundColor(Color.parseColor("#FFFFFF"))
+                }
+
+                val rowLayout = LinearLayout(requireContext()).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    setPadding(24, 28, 32, 28)
+                    gravity = Gravity.CENTER_VERTICAL
+                }
+
+                val checkBox = CheckBox(requireContext()).apply {
+                    layoutParams = LinearLayout.LayoutParams(-2, -2).apply { setMargins(0, 0, 16, 0) }
+                }
+                checkBoxMap[index] = checkBox
+
+                val textLayout = LinearLayout(requireContext()).apply {
+                    orientation = LinearLayout.VERTICAL
+                    layoutParams = LinearLayout.LayoutParams(0, -2, 1f)
+                }
+
+                val itemText = TextView(requireContext()).apply {
+                    text = item
+                    textSize = 13f
+                    setTypeface(null, Typeface.BOLD)
+                    setTextColor(Color.parseColor("#334155"))
+                }
+
+                val statusBadge = TextView(requireContext()).apply {
+                    text = "🟢 백그라운드 추적 엔진 작동 중"
+                    textSize = 10f
+                    setTextColor(Color.parseColor("#059669"))
+                    setPadding(0, 6, 0, 0)
+                }
+
+                textLayout.addView(itemText)
+                textLayout.addView(statusBadge)
+
+                rowLayout.addView(checkBox)
+                rowLayout.addView(textLayout)
+                card.addView(rowLayout)
+                listContainer.addView(card)
+            }
+        }
+
+        scrollView.addView(listContainer)
+        dialogView.addView(scrollView)
+
+        val materialDialog = MaterialAlertDialogBuilder(requireContext(), android.R.style.Theme_DeviceDefault_Light_Dialog_Alert)
+            .setTitle("🎯 실시간 알림 추적 목록")
+            .setView(dialogView)
+            .setPositiveButton("닫기", null)
+
+        if (trackingNotificationList.isNotEmpty()) {
+
+            // 🗑️ 선택 알림 해제 버튼으로 명칭 통일
+            materialDialog.setPositiveButton("🗑️ 선택 알림 해제") { dialog, _ ->
+                for (i in trackingNotificationList.size - 1 downTo 0) {
+                    if (checkBoxMap[i]?.isChecked == true) {
+                        trackingNotificationList.removeAt(i)
+                    }
+                }
+                btnNotificationList.text = "🔔 내 알림 신청 목록 (${trackingNotificationList.size})"
+                Toast.makeText(requireContext(), "선택한 공간의 알림 신청이 해제되었습니다.", Toast.LENGTH_SHORT).show()
+                dialog.dismiss()
+            }
+
+            // 🗑️ 전체 알림 해제 버튼으로 명칭 통일
+            materialDialog.setNeutralButton("💥 전체 알림 해제") { dialog, _ ->
+                trackingNotificationList.clear()
+                btnNotificationList.text = "🔔 내 알림 신청 목록 (${trackingNotificationList.size})"
+                Toast.makeText(requireContext(), "모든 공간의 알림 신청이 해제되었습니다.", Toast.LENGTH_SHORT).show()
+                dialog.dismiss()
+            }
+        }
+
+        val alertDialog = materialDialog.create()
+        alertDialog.show()
     }
 
     private fun loadReservationStatus() {
@@ -100,42 +246,28 @@ class StatusFragment : Fragment() {
                 val selectedYear = dateParts[0]
                 val selectedMonth = dateParts[1].toInt().toString()
                 val selectedDay = dateParts[2].toInt().toString()
-                val formattedMonth = dateParts[1] // "06" 형태 유지
+                val formattedMonth = dateParts[1]
 
                 val document = when (tabLayout.selectedTabPosition) {
-
-                    // ── 학술정보관: 쿠키 불필요, 기존 방식 유지
                     0 -> {
                         val url = "$currentUrl?year=$selectedYear&month=$selectedMonth"
                         Log.d("STATUS_DEBUG", "[학술정보관] 요청 URL: $url")
-                        Jsoup.connect(url)
-                            .userAgent("Mozilla/5.0")
-                            .get()
+                        Jsoup.connect(url).userAgent("Mozilla/5.0").get()
                     }
-
-                    // ── 코딩라운지 / 상상파크: 쿠키 세션 먼저 획득 후 요청
                     else -> {
                         val baseUrl = currentUrl
                         val targetUrl = "$baseUrl?viewType=m&rentDate=$selectedYear-$formattedMonth-01"
                         Log.d("STATUS_DEBUG", "[코딩라운지/상상파크] 베이스 URL 쿠키 획득: $baseUrl")
                         Log.d("STATUS_DEBUG", "[코딩라운지/상상파크] 실제 요청 URL: $targetUrl")
 
-                        // 1단계: 메인 페이지 GET으로 세션 쿠키 획득
-                        val cookieResponse = Jsoup.connect(baseUrl)
-                            .userAgent("Mozilla/5.0")
-                            .execute()
+                        val cookieResponse = Jsoup.connect(baseUrl).userAgent("Mozilla/5.0").execute()
                         val cookies = cookieResponse.cookies()
                         Log.d("STATUS_DEBUG", "획득한 쿠키: $cookies")
 
-                        // 2단계: 쿠키 들고 원하는 달 요청
-                        Jsoup.connect(targetUrl)
-                            .userAgent("Mozilla/5.0")
-                            .cookies(cookies)
-                            .get()
+                        Jsoup.connect(targetUrl).userAgent("Mozilla/5.0").cookies(cookies).get()
                     }
                 }
 
-                // ── 날짜 셀 매칭
                 val dayCell = document.select("td").firstOrNull { cell ->
                     val daySpan = cell.selectFirst("span")
                     if (daySpan != null) {
@@ -169,7 +301,7 @@ class StatusFragment : Fragment() {
                         val emptyText = TextView(requireContext()).apply {
                             text = "✨\n\n해당 날짜는 비어있는 클린 데이입니다!\n원하는 시간을 선점하기 아주 좋은 타이밍이네요."
                             textSize = 15f
-                            setTextColor(android.graphics.Color.parseColor("#475569"))
+                            setTextColor(Color.parseColor("#475569"))
                             setPadding(40, 100, 40, 40)
                             gravity = Gravity.CENTER
                         }
@@ -194,8 +326,8 @@ class StatusFragment : Fragment() {
             radius = 20f
             cardElevation = 0f
             strokeWidth = 2
-            strokeColor = android.graphics.Color.parseColor("#E2E8F0")
-            setCardBackgroundColor(android.graphics.Color.parseColor("#FFFFFF"))
+            strokeColor = Color.parseColor("#E2E8F0")
+            setCardBackgroundColor(Color.parseColor("#FFFFFF"))
         }
 
         val inner = LinearLayout(requireContext()).apply {
@@ -207,7 +339,7 @@ class StatusFragment : Fragment() {
             text = roomName
             textSize = 16f
             setTypeface(null, android.graphics.Typeface.BOLD)
-            setTextColor(android.graphics.Color.parseColor("#0F1E36"))
+            setTextColor(Color.parseColor("#0F1E36"))
         }
 
         val badgeLayout = LinearLayout(requireContext()).apply {
@@ -215,21 +347,52 @@ class StatusFragment : Fragment() {
             setPadding(20, 10, 20, 10)
             layoutParams = LinearLayout.LayoutParams(-2, -2).apply { setMargins(0, 14, 0, 0) }
             background = android.graphics.drawable.GradientDrawable().apply {
-                setColor(android.graphics.Color.parseColor("#EEF2F6"))
+                setColor(Color.parseColor("#EEF2F6"))
                 cornerRadius = 10f
             }
         }
 
         val statusText = TextView(requireContext()).apply {
-            text = "🔒 예약 선점  |  $timeRange"
+            text = String.format(Locale.KOREAN, "🔒 예약 선점  |  %s", timeRange)
             textSize = 12f
             setTypeface(null, android.graphics.Typeface.BOLD)
-            setTextColor(android.graphics.Color.parseColor("#1E3A8A"))
+            setTextColor(Color.parseColor("#1E3A8A"))
+        }
+        badgeLayout.addView(statusText)
+
+        // 🔔 카드 하단 신청 버튼 명칭도 완벽히 통일 완료
+        val trackButton = com.google.android.material.button.MaterialButton(requireContext()).apply {
+            text = "🔔 취소 알림 신청"
+            textSize = 13f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setBackgroundColor("#E24B4A".toColorInt())
+            setTextColor(Color.WHITE)
+            cornerRadius = 12
+            layoutParams = LinearLayout.LayoutParams(-1, -2).apply { setMargins(0, 14, 0, 0) }
+
+            setOnClickListener {
+                val start = timeRange.split("~").getOrNull(0)?.trim() ?: "13:00"
+                val end = timeRange.split("~").getOrNull(1)?.trim() ?: "15:00"
+
+                val trackingItem = "[$selectedDateString] $roomName ($timeRange)"
+                if (!trackingNotificationList.contains(trackingItem)) {
+                    trackingNotificationList.add(trackingItem)
+                }
+                btnNotificationList.text = "🔔 내 알림 신청 목록 (${trackingNotificationList.size})"
+
+                val serviceIntent = Intent(requireContext(), RoomTrackingService::class.java).apply {
+                    putExtra("START", start)
+                    putExtra("END", end)
+                    putExtra("ROOM_NAME", roomName)
+                }
+                requireContext().startService(serviceIntent)
+                Toast.makeText(requireContext(), "🎯 [$roomName] 취소 모니터링 가동! 앱을 닫고 기다리세요.", Toast.LENGTH_SHORT).show()
+            }
         }
 
-        badgeLayout.addView(statusText)
         inner.addView(nameText)
         inner.addView(badgeLayout)
+        inner.addView(trackButton)
         card.addView(inner)
         container.addView(card)
     }

@@ -1,131 +1,148 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F8FAFC"
-    android:fillViewport="true">
+    android:orientation="vertical"
+    android:background="#F8FAFC">
 
-    <LinearLayout
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayoutRule"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="20dp">
+        android:background="#FFFFFF"
+        app:tabIndicatorColor="#0F1E36"
+        app:tabSelectedTextColor="#0F1E36"
+        app:tabTextColor="#94A3B8"
+        app:tabIndicatorHeight="3dp"
+        app:tabRippleColor="@null">
 
-        <TextView
+        <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="이용 규정"
-            android:textSize="26sp"
-            android:textStyle="bold"
-            android:textColor="#0F1E36"
-            android:layout_marginBottom="24dp"
-            android:letterSpacing="-0.03"/>
+            android:text="학술정보관" />
 
-        <com.google.android.material.card.MaterialCardView
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="코딩라운지" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="상상파크+" />
+    </com.google.android.material.tabs.TabLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
-            app:strokeWidth="1dp"
-            app:strokeColor="#E2E8F0"
-            app:cardBackgroundColor="#FFFFFF">
+            android:orientation="vertical"
+            android:padding="20dp">
 
-            <LinearLayout
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/layoutLibraryRule"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="20dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="📌 시설 이용 기본 수칙"
-                    android:textSize="15sp"
-                    android:textStyle="bold"
-                    android:textColor="#0F1E36"
-                    android:layout_marginBottom="12dp"/>
-
-                <TextView
+                android:visibility="visible"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#CBD5E1"
+                app:cardBackgroundColor="#FFFFFF">
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="• 예약 시간 엄수 (시작 및 종료 시간 미준수 시 페널티 부과)\n• 음식물 반입 금지 (음료 및 간단한 스낵류 제외)\n• 퇴실 시 멀티탭 전원 차단 및 기자재 정리 정돈 필수"
-                    android:textColor="#475569"
-                    android:textSize="14sp"
-                    android:lineSpacingExtra="6dp"/>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+                    android:orientation="vertical"
+                    android:padding="24dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🏢 학술정보관 이용 수칙"
+                        android:textSize="17sp"
+                        android:textStyle="bold"
+                        android:textColor="#1E3A8A"
+                        android:layout_marginBottom="16dp"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="• [이용 시간]: 자료열람실 운영시간 준수\n  - [학기중] 평일 09:00~21:00 / 토요일 11:00~15:00\n  - [방학중] 평일 10:00~16:00 (토요일 불가)\n• [이용 조건]: 최소 3인 ~ 최대 6인 (1일 최대 3시간)\n• [동반자 입력]: 학번 및 이름 입력 필수 (ex. 24김한성)\n• [입실 절차]: 3층 INFORMATION 데스크 학생증 지참 방문\n• [주의 및 페널티]:\n  - 30분 경과 후 미입실 시 자동 취소 (3회 위반 시 제한)\n  - 동일 그룹 연속 이용 적발 시 즉시 취소 및 퇴실\n  - 이용 규정 문의: ☎ 02-760-5667"
+                        android:textColor="#334155"
+                        android:textSize="14sp"
+                        android:lineSpacingExtra="6dp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
-            app:strokeWidth="1dp"
-            app:strokeColor="#E2E8F0"
-            app:cardBackgroundColor="#FFFFFF">
-
-            <LinearLayout
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/layoutCodingRule"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="20dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="⏰ 예약 및 대여 제한 사양"
-                    android:textSize="15sp"
-                    android:textStyle="bold"
-                    android:textColor="#0F1E36"
-                    android:layout_marginBottom="12dp"/>
-
-                <TextView
+                android:visibility="gone"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#CBD5E1"
+                app:cardBackgroundColor="#FFFFFF">
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="• 1인당 일일 최대 이용 시간: 3시간 제한\n• 최소 예약 가능 인원: 각 스터디룸 규격별 기준 준수\n• 당일 예약 취소는 시작 시간 최소 1시간 전까지만 가능"
-                    android:textColor="#475569"
-                    android:textSize="14sp"
-                    android:lineSpacingExtra="6dp"/>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+                    android:orientation="vertical"
+                    android:padding="24dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="💻 코딩라운지 세미나실 안내"
+                        android:textSize="17sp"
+                        android:textStyle="bold"
+                        android:textColor="#0F6E56"
+                        android:layout_marginBottom="16dp"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="• [이용 시간]: 1일 최대 6시간 예약 가능 (초과 시 취소)\n• [수용 인원 규격]:\n  - 세미나실 101호 ~ 105호: 최대 12명 (테이블 2개)\n  - 세미나실 106호 ~ 113호: 최대 8명 (테이블 1개)\n• [승인 및 입실]: 공학관 A동 B1F 상상파크 플러스 데스크\n  - 관리자 동행 및 신분증 필수 제출 후 출입문 개방\n• [시간별 문의처]:\n  - 09:00 ~ 17:00 : 상상파크 플러스 안내데스크\n  - 17:00 ~ 21:00 : 연구관 B1F 상상파크 데스크 (☎ 02-760-8006)\n  - 기타 이용 문의: ☎ 02-760-8021"
+                        android:textColor="#334155"
+                        android:textSize="14sp"
+                        android:lineSpacingExtra="6dp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
-            app:strokeWidth="1dp"
-            app:strokeColor="#FCA5A5"
-            app:cardBackgroundColor="#FEF2F2">
-
-            <LinearLayout
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/layoutSangsangRule"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="20dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="⚠️ 무단 불참(No-Show) 제재 조치"
-                    android:textSize="15sp"
-                    android:textStyle="bold"
-                    android:textColor="#991B1B"
-                    android:layout_marginBottom="12dp"/>
-
-                <TextView
+                android:visibility="gone"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#CBD5E1"
+                app:cardBackgroundColor="#FFFFFF">
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="• 사전 취소 없이 15분 이상 입실하지 않을 경우 자동 취소\n• 누적 노쇼 3회 발생 시, 해당 학기 공간 예약 권한이 30일간 즉시 정지됩니다."
-                    android:textColor="#991B1B"
-                    android:textSize="13sp"
-                    android:lineSpacingExtra="5dp"
-                    android:textStyle="bold"/>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+                    android:orientation="vertical"
+                    android:padding="24dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="✨ 상상파크 플러스 규정"
+                        android:textSize="17sp"
+                        android:textStyle="bold"
+                        android:textColor="#B45309"
+                        android:layout_marginBottom="16dp"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="• [이용 시간]: 1회 최대 3시간 예약 제한 제공\n• [기자재 대여]: 빔프로젝터는 별도 스케줄 예약으로 대여\n• [승인 및 절차]: 예약 후 상상파크 플러스 안내데스크 방문\n  - 신분증을 필히 지참하여 관리자 확인 시 제출 필수"
+                        android:textColor="#334155"
+                        android:textSize="14sp"
+                        android:lineSpacingExtra="6dp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-    </LinearLayout>
-</ScrollView>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

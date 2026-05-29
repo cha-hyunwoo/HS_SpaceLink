@@ -1,8 +1,8 @@
 package com.example.hs_spacelink
 
 import android.app.TimePickerDialog
-import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -16,7 +16,8 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import androidx.core.graphics.toColorInt
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import com.google.android.material.datepicker.MaterialDatePicker
 import org.jsoup.Jsoup
@@ -60,8 +61,8 @@ class AvailableFragment : Fragment() {
         val checkCoding = view.findViewById<CheckBox>(R.id.checkCoding)
         val checkSangsang = view.findViewById<CheckBox>(R.id.checkSangsang)
 
-        searchButton.setBackgroundColor(android.graphics.Color.parseColor("#0F1E36"))
-        searchButton.setTextColor(android.graphics.Color.WHITE)
+        searchButton.setBackgroundColor("#0F1E36".toColorInt())
+        searchButton.setTextColor(Color.WHITE)
 
         showInitialGuide()
         setupPickers(editDate, editStartTime, editEndTime)
@@ -85,7 +86,7 @@ class AvailableFragment : Fragment() {
             currentEndTime = endTime
 
             textResultCount.text = "🔍 크롤링 엔진 가동 중..."
-            textResultCount.setTextColor(android.graphics.Color.parseColor("#1E3A8A"))
+            textResultCount.setTextColor("#1E3A8A".toColorInt())
 
             Thread {
                 try {
@@ -106,7 +107,7 @@ class AvailableFragment : Fragment() {
 
                         var availableCount = 0
                         totalSelected.forEach { room ->
-                            val normalized = room.replace("-", "").replace(" ", "").lowercase()
+                            val normalized = room.replace("-", "").replace(" ", "").lowercase(Locale.ROOT)
 
                             if (!reservedRooms.contains(normalized)) {
                                 availableCount++
@@ -115,17 +116,22 @@ class AvailableFragment : Fragment() {
                                     codingRooms.contains(room) -> "코딩라운지"
                                     else -> "상상파크 플러스"
                                 }
-                                addResultCard(resultContainer, category, room, "$startTime ~ $endTime [예약 가능]")
+                                val statusMsg = String.format(Locale.KOREAN, "%s ~ %s [예약 가능]", startTime, endTime)
+                                addResultCard(resultContainer, category, room, statusMsg)
                             }
                         }
 
-                        textResultCount.text = "조회 결과 ${availableCount}개"
-                        textResultCount.setTextColor(android.graphics.Color.parseColor("#0F1E36"))
+                        textResultCount.text = String.format(Locale.KOREAN, "조회 결과 %d개", availableCount)
+                        textResultCount.setTextColor("#0F1E36".toColorInt())
 
                         if (availableCount == 0) showNoResultView()
                     }
                 } catch (e: Exception) {
                     Log.e("HTML_ERROR", e.toString())
+                    requireActivity().runOnUiThread {
+                        textResultCount.text = "조회 실패"
+                        Toast.makeText(requireContext(), "네트워크 오류가 발생했습니다.", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }.start()
         }
@@ -136,10 +142,10 @@ class AvailableFragment : Fragment() {
         resultContainer.removeAllViews()
         textResultCount.text = "조회 결과"
         val guideText = TextView(requireContext()).apply {
-            text = "💡\n\n원하시는 시설 and 일정을 위 창에 입력하신 뒤\n[조회하기] 버튼을 누르면 실시간 맵핑이 시작됩니다!"
+            text = "💡\n\n원하시는 시설과 일정을 위 창에 입력하신 뒤\n[조회하기] 버튼을 누르면 실시간 맵핑이 시작됩니다!"
             textSize = 15f
             gravity = Gravity.CENTER
-            setTextColor(android.graphics.Color.parseColor("#64748B"))
+            setTextColor("#64748B".toColorInt())
             setPadding(40, 150, 40, 40)
         }
         resultContainer.addView(guideText)
@@ -150,7 +156,7 @@ class AvailableFragment : Fragment() {
             text = "😥\n\n선택하신 시간대에는 이미 모든 예약이 선점되어\n남아있는 빈 공간이 없습니다. 다른 시간을 설정해보세요!"
             textSize = 15f
             gravity = Gravity.CENTER
-            setTextColor(android.graphics.Color.parseColor("#94A3B8"))
+            setTextColor("#94A3B8".toColorInt())
             setPadding(40, 150, 40, 40)
         }
         resultContainer.addView(emptyText)
@@ -163,7 +169,7 @@ class AvailableFragment : Fragment() {
         dayCell?.select("div.conBox")?.forEach { box ->
             val lines = box.html().split("<br>")
             if (lines.size >= 2) {
-                val rawRoomName = Jsoup.parse(lines[0]).text().replace("-", "").replace(" ", "").trim().lowercase()
+                val rawRoomName = Jsoup.parse(lines[0]).text().replace("-", "").replace(" ", "").trim().lowercase(Locale.ROOT)
                 val reservedTime = Jsoup.parse(lines[1]).text().trim()
 
                 if (reservedTime.contains("~") && isTimeOverlap(startTime, endTime, reservedTime)) {
@@ -186,7 +192,7 @@ class AvailableFragment : Fragment() {
     private fun showScrollTimePicker(target: EditText, defaultHour: Int) {
         val timePickerDialog = TimePickerDialog(
             requireContext(), 3,
-            { _, hourOfDay, minute -> target.setText(String.format("%02d:%02d", hourOfDay, minute)) },
+            { _, hourOfDay, minute -> target.setText(String.format(Locale.KOREAN, "%02d:%02d", hourOfDay, minute)) },
             defaultHour, 0, true
         )
         timePickerDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
@@ -205,8 +211,8 @@ class AvailableFragment : Fragment() {
             radius = 20f
             cardElevation = 2f
             strokeWidth = 2
-            strokeColor = android.graphics.Color.parseColor("#E2E8F0")
-            setCardBackgroundColor(android.graphics.Color.parseColor("#F8FAFC"))
+            strokeColor = "#E2E8F0".toColorInt()
+            setCardBackgroundColor("#F8FAFC".toColorInt())
         }
 
         val inner = LinearLayout(requireContext()).apply {
@@ -217,14 +223,14 @@ class AvailableFragment : Fragment() {
         val placeText = TextView(requireContext()).apply {
             text = category
             textSize = 12f
-            setTextColor(android.graphics.Color.parseColor("#94A3B8"))
+            setTextColor("#94A3B8".toColorInt())
         }
 
         val roomText = TextView(requireContext()).apply {
             text = room
             textSize = 17f
             setTypeface(null, android.graphics.Typeface.BOLD)
-            setTextColor(android.graphics.Color.parseColor("#0F1E36"))
+            setTextColor("#0F1E36".toColorInt())
             setPadding(0, 6, 0, 10)
         }
 
@@ -233,16 +239,16 @@ class AvailableFragment : Fragment() {
             setPadding(20, 10, 20, 10)
             layoutParams = LinearLayout.LayoutParams(-2, -2).apply { setMargins(0, 0, 0, 24) }
             background = android.graphics.drawable.GradientDrawable().apply {
-                setColor(android.graphics.Color.parseColor("#E0F2FE"))
+                setColor("#E0F2FE".toColorInt())
                 cornerRadius = 10f
             }
         }
 
         val statusText = TextView(requireContext()).apply {
-            text = "🔓 $status"
+            text = String.format(Locale.KOREAN, "🔓 %s", status)
             textSize = 12f
             setTypeface(null, android.graphics.Typeface.BOLD)
-            setTextColor(android.graphics.Color.parseColor("#0369A1"))
+            setTextColor("#0369A1".toColorInt())
         }
         badgeLayout.addView(statusText)
 
@@ -250,8 +256,8 @@ class AvailableFragment : Fragment() {
             text = "지금 바로 예약"
             textSize = 13f
             setTypeface(null, android.graphics.Typeface.BOLD)
-            setBackgroundColor(android.graphics.Color.parseColor("#1E3A8A"))
-            setTextColor(android.graphics.Color.WHITE)
+            setBackgroundColor("#1E3A8A".toColorInt())
+            setTextColor(Color.WHITE)
             cornerRadius = 12
 
             setOnClickListener {
@@ -262,37 +268,35 @@ class AvailableFragment : Fragment() {
                 }
 
                 try {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(officialUrl))
+                    val intent = Intent(Intent.ACTION_VIEW, officialUrl.toUri())
                     context.startActivity(intent)
-                } catch (e: Exception) {
+                } catch (unUsed: Exception) {
                     Toast.makeText(context, "브라우저를 열 수 없습니다.", Toast.LENGTH_SHORT).show()
                 }
             }
         }
 
-        // ★ [정밀 바인딩] 예약 결과에서 곧바로 SVG 웹뷰 지도로 점프 연동시키는 위치 보기 버튼 주입 ★
         val mapButton = com.google.android.material.button.MaterialButton(requireContext()).apply {
             text = "🗺 위치 보기"
             textSize = 13f
             setTypeface(null, android.graphics.Typeface.BOLD)
-            setBackgroundColor(android.graphics.Color.parseColor("#0F6E56"))
-            setTextColor(android.graphics.Color.WHITE)
+            setBackgroundColor("#0F6E56".toColorInt())
+            setTextColor(Color.WHITE)
             cornerRadius = 12
             layoutParams = LinearLayout.LayoutParams(-1, -2).apply { setMargins(0, 12, 0, 0) }
 
             setOnClickListener {
                 val key = when (category) {
-                    "학술정보관" -> "sangsangwan"
+                    "학술정보관" -> "coding"
                     "코딩라운지" -> "coding"
-                    else -> "sangsangwan" // 상상파크 플러스 대응
+                    else -> "coding"
                 }
                 requireActivity().supportFragmentManager.beginTransaction()
                     .replace(R.id.fragmentContainer, MapFragment.newInstance(key))
                     .addToBackStack(null)
                     .commit()
 
-                // 액티비티 액션바 헤더 타이틀도 동기화 처리
-                (requireActivity() as? AppCompatActivity)?.supportActionBar?.title = "캠퍼스 지도"
+                (requireActivity() as? androidx.appcompat.app.AppCompatActivity)?.supportActionBar?.title = "캠퍼스 지도"
             }
         }
 
@@ -300,8 +304,8 @@ class AvailableFragment : Fragment() {
             text = "📅 내 캘린더에 일정 추가"
             textSize = 13f
             setTypeface(null, android.graphics.Typeface.BOLD)
-            setBackgroundColor(android.graphics.Color.parseColor("#475569"))
-            setTextColor(android.graphics.Color.WHITE)
+            setBackgroundColor("#475569".toColorInt())
+            setTextColor(Color.WHITE)
             cornerRadius = 12
             layoutParams = LinearLayout.LayoutParams(-1, -2).apply { setMargins(0, 12, 0, 0) }
 
@@ -320,7 +324,7 @@ class AvailableFragment : Fragment() {
                         putExtra(android.provider.CalendarContract.EXTRA_EVENT_END_TIME, endMillis)
                     }
                     context.startActivity(intent)
-                } catch (e: Exception) {
+                } catch (unUsed: Exception) {
                     Toast.makeText(context, "캘린더 앱을 호출할 수 없습니다.", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -330,7 +334,7 @@ class AvailableFragment : Fragment() {
         inner.addView(roomText)
         inner.addView(badgeLayout)
         inner.addView(reserveButton)
-        inner.addView(mapButton) // 위치 버튼을 예약 버튼 바로 아래 순서로 배치
+        inner.addView(mapButton)
         inner.addView(calendarButton)
         card.addView(inner)
         container.addView(card)
