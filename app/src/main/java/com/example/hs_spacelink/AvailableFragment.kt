@@ -14,6 +14,7 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.graphics.toColorInt
@@ -36,11 +37,12 @@ class AvailableFragment : Fragment() {
     )
     private val codingRooms = listOf(
         "세미나실 101호", "세미나실 102호", "세미나실 103호", "세미나실 104호", "세미나실 105호",
-        "세미나실 106호", "세미나실 110호", "세미나실 111호", "세미나실 112호", "세미나실 113호"
+        "세미나실 110호", "세미나실 111호", "세미나실 112호", "세미나실 113호"
     )
 
     private lateinit var textResultCount: TextView
     private lateinit var resultContainer: LinearLayout
+    private lateinit var progressBar: ProgressBar
 
     private var currentSelectedDate = ""
     private var currentStartTime = ""
@@ -53,6 +55,8 @@ class AvailableFragment : Fragment() {
 
         resultContainer = view.findViewById(R.id.resultContainer)
         textResultCount = view.findViewById(R.id.textResultCount)
+        progressBar = view.findViewById(R.id.cryptoProgressBar)
+
         val searchButton = view.findViewById<Button>(R.id.btnSearch)
         val editDate = view.findViewById<EditText>(R.id.editDate)
         val editStartTime = view.findViewById<EditText>(R.id.editStartTime)
@@ -85,8 +89,11 @@ class AvailableFragment : Fragment() {
             currentStartTime = startTime
             currentEndTime = endTime
 
-            textResultCount.text = "🔍 크롤링 엔진 가동 중..."
-            textResultCount.setTextColor("#1E3A8A".toColorInt())
+            // ★ [UX 정제] "조회 결과" 기본 타이틀 톤앤매너 유지 및 이전 결과 뷰 비우기
+            textResultCount.text = "조회 결과"
+            textResultCount.setTextColor("#64748B".toColorInt())
+            resultContainer.removeAllViews()
+            progressBar.visibility = View.VISIBLE // 동글동글이만 우아하게 시작
 
             Thread {
                 try {
@@ -98,9 +105,9 @@ class AvailableFragment : Fragment() {
                     if (checkCoding.isChecked) parseUrlData("https://www.hansung.ac.kr/cncschool/4182/subview.do", selectedDay, startTime, endTime, reservedRooms)
 
                     requireActivity().runOnUiThread {
-                        resultContainer.removeAllViews()
-                        val totalSelected = mutableListOf<String>()
+                        progressBar.visibility = View.GONE // 크롤링 완료 후 동글동글이 아웃
 
+                        val totalSelected = mutableListOf<String>()
                         if (checkLibrary.isChecked) totalSelected.addAll(libraryRooms)
                         if (checkCoding.isChecked) totalSelected.addAll(codingRooms)
                         if (checkSangsang.isChecked) totalSelected.addAll(sangsangRooms)
@@ -121,6 +128,7 @@ class AvailableFragment : Fragment() {
                             }
                         }
 
+                        // 결과 도출 시 최종 카운트 표기 최신화
                         textResultCount.text = String.format(Locale.KOREAN, "조회 결과 %d개", availableCount)
                         textResultCount.setTextColor("#0F1E36".toColorInt())
 
@@ -129,6 +137,7 @@ class AvailableFragment : Fragment() {
                 } catch (e: Exception) {
                     Log.e("HTML_ERROR", e.toString())
                     requireActivity().runOnUiThread {
+                        progressBar.visibility = View.GONE
                         textResultCount.text = "조회 실패"
                         Toast.makeText(requireContext(), "네트워크 오류가 발생했습니다.", Toast.LENGTH_SHORT).show()
                     }

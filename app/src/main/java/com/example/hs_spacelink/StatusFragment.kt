@@ -13,6 +13,7 @@ import android.widget.Button
 import android.widget.CalendarView
 import android.widget.CheckBox
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
@@ -32,6 +33,7 @@ class StatusFragment : Fragment() {
     private lateinit var resultContainer: LinearLayout
     private lateinit var textTitle: TextView
     private lateinit var btnNotificationList: Button
+    private lateinit var progressBar: ProgressBar // ★ 프로그레스 바 바인딩 객체 추가
 
     private var selectedDateString = ""
     private var currentUrl = "https://www.hansung.ac.kr/hsel/2153/subview.do"
@@ -52,6 +54,7 @@ class StatusFragment : Fragment() {
         calendarView = view.findViewById(R.id.calendarViewStatus)
         resultContainer = view.findViewById(R.id.statusResultContainer)
         textTitle = view.findViewById(R.id.textStatusTitle)
+        progressBar = view.findViewById(R.id.cryptoProgressBar) // 아이디 매칭
 
         btnNotificationList = Button(requireContext()).apply {
             text = "🔔 내 알림 신청 목록 (${trackingNotificationList.size})"
@@ -124,7 +127,6 @@ class StatusFragment : Fragment() {
         }
     }
 
-    // ★ [말 통일 완수] 팝업 내부의 모든 단어를 '신청'과 '해제'로 정밀 통일했습니다.
     private fun showTrackingListDialog() {
         val dialogView = LinearLayout(requireContext()).apply {
             orientation = LinearLayout.VERTICAL
@@ -211,8 +213,6 @@ class StatusFragment : Fragment() {
             .setPositiveButton("닫기", null)
 
         if (trackingNotificationList.isNotEmpty()) {
-
-            // 🗑️ 선택 알림 해제 버튼으로 명칭 통일
             materialDialog.setPositiveButton("🗑️ 선택 알림 해제") { dialog, _ ->
                 for (i in trackingNotificationList.size - 1 downTo 0) {
                     if (checkBoxMap[i]?.isChecked == true) {
@@ -224,7 +224,6 @@ class StatusFragment : Fragment() {
                 dialog.dismiss()
             }
 
-            // 🗑️ 전체 알림 해제 버튼으로 명칭 통일
             materialDialog.setNeutralButton("💥 전체 알림 해제") { dialog, _ ->
                 trackingNotificationList.clear()
                 btnNotificationList.text = "🔔 내 알림 신청 목록 (${trackingNotificationList.size})"
@@ -238,6 +237,14 @@ class StatusFragment : Fragment() {
     }
 
     private fun loadReservationStatus() {
+        // ★ [로딩 애니메이션 시작] 크롤링 스레드 진입 전 프로그레스 바 실행 및 컨테이너 비우기
+        if (::progressBar.isInitialized) {
+            requireActivity().runOnUiThread {
+                resultContainer.removeAllViews()
+                progressBar.visibility = View.VISIBLE
+            }
+        }
+
         Thread {
             try {
                 val dateParts = selectedDateString.split("-")
@@ -295,7 +302,8 @@ class StatusFragment : Fragment() {
                 if (!isAdded) return@Thread
 
                 requireActivity().runOnUiThread {
-                    resultContainer.removeAllViews()
+                    // ★ [로딩 애니메이션 종료] 데이터 수신 완료 시 프로그레스 바 숨기기
+                    progressBar.visibility = View.GONE
 
                     if (statusList.isEmpty()) {
                         val emptyText = TextView(requireContext()).apply {
@@ -315,7 +323,9 @@ class StatusFragment : Fragment() {
 
             } catch (e: Exception) {
                 Log.e("STATUS_ERROR", "❌ ${e.javaClass.simpleName}: ${e.message}")
-                Log.e("STATUS_ERROR", e.stackTraceToString())
+                requireActivity().runOnUiThread {
+                    progressBar.visibility = View.GONE // 예외 상황 롤백 방어
+                }
             }
         }.start()
     }
@@ -360,7 +370,6 @@ class StatusFragment : Fragment() {
         }
         badgeLayout.addView(statusText)
 
-        // 🔔 카드 하단 신청 버튼 명칭도 완벽히 통일 완료
         val trackButton = com.google.android.material.button.MaterialButton(requireContext()).apply {
             text = "🔔 취소 알림 신청"
             textSize = 13f
