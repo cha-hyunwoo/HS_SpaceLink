@@ -18,8 +18,19 @@
         <item name="titleTextColor">#FFFFFF</item>
         <item name="iconTint">#FFFFFF</item>
 
+        <item name="colorControlActivated">#1E3A8A</item>
+
     </style>
 
     <style name="Theme.HS_SpaceLink" parent="Base.Theme.HS_SpaceLink" />
+
+    <style name="CompactDialogStyle" parent="Theme.Material3.DayNight.Dialog.Alert">
+        <item name="shapeAppearanceOverlay">@style/DialogRoundedCorner</item>
+        <item name="colorAccent">#0F1E36</item>
+    </style>
+
+    <style name="DialogRoundedCorner" parent="">
+        <item name="cornerSize">24dp</item>
+    </style>
 
 </resources>

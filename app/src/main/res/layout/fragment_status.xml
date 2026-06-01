@@ -1,91 +1,104 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F8FAFC"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="#F8FAFC">
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayoutStatus"
         android:layout_width="match_parent"
-        android:layout_height="54dp"
-        app:tabMode="fixed"
-        app:tabGravity="fill"
-        app:tabInlineLabel="true"
-        app:tabBackground="@color/white"
-        app:tabIndicatorAnimationMode="elastic"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        app:tabIndicatorColor="#0F1E36"
         app:tabSelectedTextColor="#0F1E36"
-        app:tabTextColor="#94A3B8">
+        app:tabTextColor="#94A3B8"
+        app:tabIndicatorHeight="3dp">
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="학술정보관"/>
+            android:text="학술정보관" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="코딩라운지"/>
+            android:text="코딩라운지" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="상상파크+"/>
+            android:text="상상파크+" />
     </com.google.android.material.tabs.TabLayout>
 
-    <com.google.android.material.card.MaterialCardView
+    <CalendarView
+        android:id="@+id/calendarViewStatus"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="0dp"
-        app:strokeWidth="1dp"
-        app:strokeColor="#E2E8F0"
-        app:cardBackgroundColor="#FFFFFF">
+        android:background="#FFFFFF"
+        android:theme="@style/Theme.HS_SpaceLink" />
 
-        <CalendarView
-            android:id="@+id/calendarViewStatus"
-            android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingLeft="40dp"
+        android:paddingRight="40dp"
+        android:paddingTop="24dp"
+        android:paddingBottom="16dp">
+
+        <TextView
+            android:id="@+id/textStatusTitle"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:padding="8dp"/>
-    </com.google.android.material.card.MaterialCardView>
+            android:layout_weight="1"
+            android:text="2026-06-01 [학술정보관]\n실시간 현황"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#0F1E36" />
 
-    <TextView
-        android:id="@+id/textStatusTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="선택된 날짜 예약 내역"
-        android:textStyle="bold"
-        android:textSize="15sp"
-        android:textColor="#0F1E36"
-        android:paddingHorizontal="20dp"
-        android:paddingTop="4dp"
-        android:paddingBottom="12dp"/>
+        <ProgressBar
+            android:id="@+id/cryptoProgressBar"
+            style="?android:attr/progressBarStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="16dp"
+            android:visibility="gone" />
 
-    <ProgressBar
-        android:id="@+id/cryptoProgressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="20dp"
-        android:visibility="gone"
-        android:indeterminateTint="#0F1E36" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnNotificationList"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="신청 목록 (0)"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            app:backgroundTint="#0F1E36"
+            app:cornerRadius="8dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"/>
+    </LinearLayout>
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
 
         <LinearLayout
             android:id="@+id/statusResultContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingHorizontal="20dp"
-            android:paddingBottom="20dp">
-        </LinearLayout>
+            android:paddingLeft="40dp"
+            android:paddingRight="40dp"
+            android:paddingBottom="40dp" />
     </ScrollView>
 
 </LinearLayout>

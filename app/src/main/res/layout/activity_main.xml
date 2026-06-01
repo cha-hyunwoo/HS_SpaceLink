@@ -11,13 +11,14 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+        <!-- 상단 툴바 배경색을 앱 시그니처인 딥 네이비(#0F1E36)로 직접 지정 -->
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/topAppBar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
+            android:background="#0F1E36"
             app:title="HS SpaceLink"
-             />
+            app:titleTextColor="#FFFFFF" />
 
         <FrameLayout
             android:id="@+id/fragmentContainer"
@@ -26,11 +27,18 @@
 
     </LinearLayout>
 
+    <!--
+        ★ 나침반 드로우 메뉴 (NavigationView) 컬러 튜닝 완료
+        기본 시스템 보라색 테마를 강제로 덮어쓰는 3대 속성을 주입했습니다.
+    -->
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/navigationView"
         android:layout_width="280dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        app:menu="@menu/drawer_menu"/>
+        android:background="#FFFFFF"
+        app:menu="@menu/drawer_menu"
+        app:itemIconTint="#1E3A8A"
+        app:itemTextColor="#0F1E36" />
 
 </androidx.drawerlayout.widget.DrawerLayout>
