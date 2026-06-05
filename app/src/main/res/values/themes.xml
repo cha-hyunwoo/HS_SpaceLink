@@ -3,22 +3,26 @@
 
     <style name="Base.Theme.HS_SpaceLink" parent="Theme.Material3.DayNight.NoActionBar">
 
+        <!-- 기본 브랜드 색상 세팅 -->
         <item name="colorPrimary">#0F1E36</item>
         <item name="colorOnPrimary">#FFFFFF</item>
-
         <item name="colorPrimaryVariant" tools:targetApi="l">#0A1424</item>
-
         <item name="colorSecondary">#1E3A8A</item>
         <item name="colorOnSecondary">#FFFFFF</item>
 
+        <!-- ★ [보라색 박멸 핵심 1] 내비게이션 드로어 아이템 선택 시 배경 보라색을 연한 네이비/그레이 톤으로 변경 -->
+        <item name="colorContainer">#EBEFF5</item>
+        <item name="colorOnContainer">#0F1E36</item>
+
+        <!-- ★ [보라색 박멸 핵심 2] 캘린더뷰 및 각종 체크박스 활성화 시 보라색 대신 우리 시그니처 딥 네이비 매핑 -->
+        <item name="colorControlActivated">#0F1E36</item>
+        <item name="colorAccent">#0F1E36</item>
+
+        <!-- 기본 윈도우 스타일 규격 -->
         <item name="android:windowBackground">#F8FAFC</item>
-
         <item name="android:windowLightStatusBar">false</item>
-
         <item name="titleTextColor">#FFFFFF</item>
         <item name="iconTint">#FFFFFF</item>
-
-        <item name="colorControlActivated">#1E3A8A</item>
 
     </style>
 

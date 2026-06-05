@@ -1,11 +1,13 @@
 package com.example.hs_spacelink
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.FrameLayout
 import androidx.fragment.app.Fragment
 
 class MapFragment : Fragment() {
@@ -23,8 +25,24 @@ class MapFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        val webView = WebView(requireContext())
-        webView.settings.javaScriptEnabled = true
+        val context = requireContext()
+
+        val frameLayout = FrameLayout(context).apply {
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+            setBackgroundColor(Color.parseColor("#F8FAFC"))
+        }
+
+        val webView = WebView(context).apply {
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+            settings.javaScriptEnabled = true
+            settings.domStorageEnabled = true
+        }
 
         val highlight = arguments?.getString("HIGHLIGHT") ?: ""
 
@@ -58,8 +76,8 @@ class MapFragment : Fragment() {
 
 <div class="loc-btns">
   <span style="font-size:13px;color:#94a3b8;align-self:center">내 위치:</span>
-  <button class="loc-btn" onclick="setLoc('sikdang')">🍚 학식당</button>
-  <button class="loc-btn" onclick="setLoc('jandi')">🌿 잔디광장</button>
+  <button class="loc-btn" onclick="setLoc('sikdang')">학식당</button>
+  <button class="loc-btn" onclick="setLoc('jandi')">잔디광장</button>
 </div>
 
 <svg viewBox="0 0 360 410" xmlns="http://www.w3.org/2000/svg">
@@ -69,7 +87,7 @@ class MapFragment : Fragment() {
   <text x="33" y="61" text-anchor="middle" font-size="9" fill="#2266aa">농구장</text>
 
   <rect x="58" y="22" width="100" height="70" rx="6" fill="#c8e898" stroke="#7ab850" stroke-width="2" stroke-dasharray="5 3"/>
-  <text x="108" y="60" text-anchor="middle" font-size="11" fill="#3a7a20" font-weight="600">🌿 잔디광장</text>
+  <text x="108" y="60" text-anchor="middle" font-size="11" fill="#3a7a20" font-weight="600">잔디광장</text>
 
   <rect x="164" y="22" width="92" height="110" rx="6" fill="#e2f0fd" stroke="#4a90e2" stroke-width="2"/>
   <text x="210" y="70" text-anchor="middle" font-size="11" fill="#0f2c4a" font-weight="700">상상관</text>
@@ -90,29 +108,18 @@ class MapFragment : Fragment() {
   <text x="69" y="258" text-anchor="middle" font-size="10" fill="#64748b" font-weight="600">지선관</text>
 
   <rect x="14" y="315" width="200" height="90" rx="8" fill="#fff3d4" stroke="#854F0B" stroke-width="2"/>
-  <text x="114" y="343" text-anchor="middle" font-size="13" fill="#412402" font-weight="700">💻 공학관 A동</text>
+  <text x="114" y="343" text-anchor="middle" font-size="13" fill="#412402" font-weight="700">공학관 A동</text>
   <text x="114" y="363" text-anchor="middle" font-size="10" fill="#854F0B">• 코딩라운지 (지상 1F)</text>
   <text x="114" y="379" text-anchor="middle" font-size="10" fill="#aa6600">• 상상파크플러스 (지하 B1F)</text>
 
   <rect x="232" y="180" width="112" height="80" rx="8" fill="#fce8e8" stroke="#c0392b" stroke-width="2"/>
   <text x="288" y="214" text-anchor="middle" font-size="12" fill="#7b1d1d" font-weight="700">창의관</text>
-  <text x="288" y="234" text-anchor="middle" font-size="11" fill="#c0392b">🍚 학생식당</text>
+  <text x="288" y="234" text-anchor="middle" font-size="11" fill="#c0392b">학생식당</text>
 
   <path id="p1" d="M288 180 L288 132" stroke="#c0392b" stroke-width="2.5" stroke-dasharray="5 3" fill="none" opacity="0" marker-end="url(#ar)"/>
-  <rect id="l1" x="263" y="145" width="50" height="16" rx="4" fill="#c0392b" opacity="0"/>
-  <text id="t1" x="288" y="156" text-anchor="middle" font-size="9" fill="white" opacity="0">도보 1분</text>
-
   <path id="p3" d="M232 215 L183 215 L183 290 L114 290 L114 315" stroke="#c0392b" stroke-width="2.5" stroke-dasharray="5 3" fill="none" opacity="0" marker-end="url(#ar)"/>
-  <rect id="l3" x="145" y="245" width="65" height="16" rx="4" fill="#c0392b" opacity="0"/>
-  <text id="t3" x="187" y="256" text-anchor="middle" font-size="9" fill="white" opacity="0">사잇길·계단</text>
-
   <path id="p7" d="M108 92 L108 150 L183 150 L183 115 L210 115 L210 75 L280 75" stroke="#7ab850" stroke-width="2.5" stroke-dasharray="5 3" fill="none" opacity="0" marker-end="url(#ar)"/>
-  <rect id="l7" x="145" y="123" width="75" height="16" rx="4" fill="#7ab850" opacity="0"/>
-  <text id="t7" x="182" y="134" text-anchor="middle" font-size="9" fill="white" opacity="0">도보 3분·관통</text>
-
   <path id="p9" d="M108 92 L108 150 L183 150 L183 290 L114 290 L114 315" stroke="#7ab850" stroke-width="2.5" stroke-dasharray="5 3" fill="none" opacity="0" marker-end="url(#ar)"/>
-  <rect id="l9" x="65" y="165" width="85" height="16" rx="4" fill="#7ab850" opacity="0"/>
-  <text id="t9" x="107" y="176" text-anchor="middle" font-size="9" fill="white" opacity="0">사잇길 경유 동선</text>
 
   <circle id="pin-r" cx="-99" cy="-99" r="16" fill="#E24B4A" opacity="0"/>
   <circle id="pin" cx="-99" cy="-99" r="8" fill="#E24B4A" opacity="0"/>
@@ -130,29 +137,30 @@ class MapFragment : Fragment() {
 const data = {
   sikdang: {
     x:288, y:220, c:'#c0392b', label:'학식당(창의관)',
-    show:['p1','l1','t1','p3','l3','t3'],
-    info:'🏢 <b>미래관 (학술정보관) 가는 길</b><br>• <b>지상 이동</b>: 학식당 바로 앞 마당 출구로 나오면 미래관 정문 앞쪽으로 즉시 연결 (도보 1분)<br>💻 <b>공학관 A동 (코딩라운지) 가는 길</b><br>• <b>상상파크와 학식당 사잇길</b>에 있는 오르막 계단으로 진입 후, 지선관 뒷길을 따라 공학관 1층 코딩라운지로 연결 (도보 4분)'
+    show:['p1','p3'],
+    info:'<b>미래관 (학술정보관) 가는 길</b><br>• <b>지상 이동</b>: 학식당 바로 앞 마당 출구로 나오면 미래관 정문 앞쪽으로 즉시 연결 (도보 1분)<br><b>공학관 A동 (코딩라운지) 가는 길</b><br>• <b>상상파크와 학식당 사잇길</b>에 있는 오르막 계단으로 진입 후, 지선관 뒷길을 따라 공학관 1층 코딩라운지로 연결 (도보 4분)'
   },
   jandi: {
     x:108, y:57, c:'#7ab850', label:'잔디광장',
-    show:['p7','l7','t7','p9','l9','t9'],
-    info:'🏢 <b>미래관 (학술정보관) 가는 길</b><br>• 잔디광장에서 사잇길로 내려가던 중 갈림길 코너에서 상상관 아래쪽 정면 입구로 진입하여, <b>2층 연결통로를 거쳐 미래관 내부로 관통</b>합니다 (도보 3분 소요).<br>💻 <b>공학관 A동 (코딩라운지) 가는 길</b><br>• 갈림길 코너에서 꺾지 않고 <b>연구관(상상파크)과 창의관 건물 사잇길 외부 통로 계단</b>을 따라 내려간 뒤 지선관을 지나 진입합니다 (도보 4~5분)'
+    show:['p7','p9'],
+    info:'<b>미래관 (학술정보관) 가는 길</b><br>• 잔디광장에서 사잇길로 내려가던 중 갈림길 코너에서 상상관 아래쪽 정면 입구로 진입하여, <b>2층 연결통로를 거쳐 미래관 내부로 관통</b>합니다 (도보 3분 소요).<br><b>공학관 A동 (코딩라운지) 가는 길</b><br>• 갈림길 코너에서 꺾지 않고 <b>연구관(상상파크)과 창의관 건물 사잇길 외부 통로 계단</b>을 따라 내려간 뒤 지선관을 지나 진입합니다 (도보 4~5분)'
   },
   coding: {
     x:301, y:75, c:'#5b9bd5', label:'미래관 (학술정보관)',
-    show:['p1','l1','t1','p7','l7','t7'],
-    info:'🏢 <b>미래관 학술정보관 타겟 매핑 완료</b><br>• <b>상상관 출발 시</b>: 창의관 쪽 메인 입구로 진입 후 2층 내부 연결통로를 통해 바로 이동 가능합니다 (도보 3분 소요).<br>• <b>학식당 출발 시</b>: 미래관 정문 학식당 앞쪽 마당을 통해 도보 1분 내 진입 가능합니다.'
+    show:['p1','p7'],
+    info:'<b>미래관 학술정보관 타겟 매핑 완료</b><br>• <b>상상관 출발 시</b>: 창의관 쪽 메인 입구로 진입 후 2층 내부 연결통로를 통해 바로 이동 가능합니다 (도보 3분 소요).<br>• <b>학식당 출발 시</b>: 미래관 정문 학식당 앞쪽 마당을 통해 도보 1분 내 진입 가능합니다.'
   }
 };
-let cur = null;
+
 function setLoc(k) {
   if (!data[k]) return;
-  document.querySelectorAll('[id^="p"],[id^="l"],[id^="t"]').forEach(e => e.setAttribute('opacity','0'));
+  
+  // 모든 점선 가이드라인 투명도 0 리셋
+  document.querySelectorAll('svg path').forEach(e => e.setAttribute('opacity','0'));
   document.querySelectorAll('.loc-btn').forEach(b => b.classList.remove('active'));
   
-  cur = k;
-  // ★ [버그 저격 수술] 누락되었던 스크립트 데이터 변수 d 선언문 완벽 복구 ★
   const d = data[k];
+  // 활성화된 점선 경로만 표출
   d.show.forEach(id => { const e = document.getElementById(id); if(e) e.setAttribute('opacity','1'); });
   
   const idx = {sikdang:0, jandi:1, coding:2}[k];
@@ -168,7 +176,7 @@ function setLoc(k) {
   }
   
   const box = document.getElementById('box');
-  box.innerHTML = '<b style="color:' + d.c + '">📍 ' + d.label + '</b> 타겟 가이드 활성화<br>' + d.info;
+  box.innerHTML = '<b style="color:' + d.c + '">' + d.label + '</b> 타겟 가이드 활성화<br>' + d.info;
   box.style.borderColor = d.c;
 }
 </script>
@@ -186,6 +194,8 @@ function setLoc(k) {
         }
 
         webView.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null)
-        return webView
+
+        frameLayout.addView(webView)
+        return frameLayout
     }
 }

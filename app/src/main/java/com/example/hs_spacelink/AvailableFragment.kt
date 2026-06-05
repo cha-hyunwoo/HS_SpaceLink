@@ -151,7 +151,7 @@ class AvailableFragment : Fragment() {
         resultContainer.removeAllViews()
         textResultCount.text = "조회 결과"
         val guideText = TextView(requireContext()).apply {
-            text = "💡\n\n원하시는 시설과 일정을 위 창에 입력하신 뒤\n[조회하기] 버튼을 누르면 실시간 맵핑이 시작됩니다!"
+            text = "\n\n원하시는 시설과 일정을 위 창에 입력하신 뒤\n[조회하기] 버튼을 누르면 실시간 맵핑이 시작됩니다!"
             textSize = 15f
             gravity = Gravity.CENTER
             setTextColor("#64748B".toColorInt())
@@ -162,7 +162,7 @@ class AvailableFragment : Fragment() {
 
     private fun showNoResultView() {
         val emptyText = TextView(requireContext()).apply {
-            text = "😥\n\n선택하신 시간대에는 이미 모든 예약이 선점되어\n남아있는 빈 공간이 없습니다. 다른 시간을 설정해보세요!"
+            text = "\n\n선택하신 시간대에는 이미 모든 예약이 선점되어\n남아있는 빈 공간이 없습니다. 다른 시간을 설정해보세요!"
             textSize = 15f
             gravity = Gravity.CENTER
             setTextColor("#94A3B8".toColorInt())
@@ -254,7 +254,7 @@ class AvailableFragment : Fragment() {
         }
 
         val statusText = TextView(requireContext()).apply {
-            text = String.format(Locale.KOREAN, "🔓 %s", status)
+            text = String.format(Locale.KOREAN, "%s", status)
             textSize = 12f
             setTypeface(null, android.graphics.Typeface.BOLD)
             setTextColor("#0369A1".toColorInt())
@@ -310,7 +310,7 @@ class AvailableFragment : Fragment() {
         }
 
         val calendarButton = com.google.android.material.button.MaterialButton(requireContext()).apply {
-            text = "📅 내 캘린더에 일정 추가"
+            text = "내 캘린더에 일정 추가"
             textSize = 13f
             setTypeface(null, android.graphics.Typeface.BOLD)
             setBackgroundColor("#475569".toColorInt())

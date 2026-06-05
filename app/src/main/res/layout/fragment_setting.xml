@@ -131,7 +131,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="💾 저장공간 및 성능 최적화"
+                    android:text="인앱 데이터 및 공간 최적화"
                     android:textSize="15sp"
                     android:textStyle="bold"
                     android:textColor="#334155"
@@ -140,7 +140,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="크롤링 엔진 가동 중 데이터 정합성을 위해 누적된 임시 캐시 파일을 즉시 청소합니다."
+                    android:text="앱 사용 중 디렉토리에 누적된 임시 캐시 데이터를 전면 삭제합니다. 스토리지 공간을 확보하고 로딩 오류를 해결하는 데 도움이 됩니다."
                     android:textSize="12sp"
                     android:textColor="#64748B"
                     android:lineSpacingExtra="3dp"
